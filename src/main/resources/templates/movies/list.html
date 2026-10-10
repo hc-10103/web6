@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>영화 목록 | 시네마 데스크</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+            background: #f3f5f8;
+            color: #18263b;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-width: 320px; }
+        button, input { font: inherit; }
+        button { cursor: pointer; }
+        a { color: inherit; text-decoration: none; }
+        .app-shell { min-height: 100vh; display: grid; grid-template-columns: 216px minmax(0, 1fr); }
+        .sidebar {
+            padding: 32px 18px; background: #142943; color: #f7fbff;
+            display: flex; flex-direction: column;
+        }
+        .brand { display: flex; gap: 13px; align-items: center; padding: 0 14px 38px; font-weight: 800; font-size: 20px; letter-spacing: -.04em; line-height: 1.25; }
+        .brand-mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; background: #dcebf7; color: #163650; font-size: 23px; }
+        .nav-label { color: #8ea8c2; font-size: 11px; font-weight: 800; letter-spacing: .13em; padding: 0 14px 12px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px; border: 0; border-radius: 11px; background: transparent; color: #b9cce0; text-align: left; font-weight: 700; }
+        .nav-item:hover, .nav-item.active { background: #245475; color: #fff; }
+        .nav-icon { width: 20px; font-size: 19px; text-align: center; font-weight: 500; }
+        .sidebar-note { margin-top: auto; padding: 22px 14px 0; border-top: 1px solid #2b4057; color: #95acc2; font-size: 12px; line-height: 1.6; }
+        .main { min-width: 0; padding: 26px; }
+        .workspace { display: grid; grid-template-columns: minmax(350px, 42%) minmax(0, 1fr); gap: 20px; max-width: 1540px; min-height: calc(100vh - 52px); margin: 0 auto; }
+        .panel { min-width: 0; background: #fff; border: 1px solid #e8edf3; border-radius: 21px; box-shadow: 0 10px 32px rgba(22, 42, 68, .045); }
+        .list-panel { display: flex; flex-direction: column; padding: 27px 24px; }
+        .eyebrow { margin: 0 0 9px; color: #47829b; font-size: 11px; font-weight: 850; letter-spacing: .16em; }
+        .panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+        h1, h2, h3, p { margin-top: 0; }
+        h1 { margin-bottom: 7px; font-size: 30px; letter-spacing: -.06em; }
+        .subtext { color: #8391a2; font-size: 14px; line-height: 1.55; }
+        .search-form { display: flex; margin-top: 20px; border: 1px solid #dce4ec; border-radius: 11px; overflow: hidden; background: #fbfcfe; }
+        .search-form:focus-within { border-color: #3688a1; box-shadow: 0 0 0 3px rgba(54, 136, 161, .12); }
+        .search-form input { flex: 1; min-width: 0; padding: 13px 15px; border: 0; outline: 0; background: transparent; color: #18263b; }
+        .search-form input::placeholder { color: #9aa7b7; }
+        .search-form button { width: 46px; border: 0; background: transparent; color: #517289; font-size: 21px; }
+        .list-tools { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 25px 0 14px; }
+        .count { margin: 0; color: #6c7c8e; font-size: 13px; font-weight: 700; }
+        .add-button, .primary-button { border: 0; border-radius: 9px; padding: 10px 15px; background: #287c91; color: white; font-size: 13px; font-weight: 800; }
+        .add-button:hover, .primary-button:hover { background: #206b7f; }
+        .movie-list { display: grid; gap: 9px; }
+        .movie-row {
+            display: flex; align-items: center; gap: 13px; min-width: 0;
+            padding: 13px; border: 1px solid transparent; border-radius: 13px;
+            transition: background .15s, border-color .15s;
+        }
+        .movie-row:hover { background: #f3f8fb; }
+        .movie-row.is-selected { background: #eaf5fb; border-color: #8ec8e4; }
+        .movie-number { flex: 0 0 48px; display: grid; place-items: center; width: 48px; height: 54px; border-radius: 9px; background: #e7edf2; color: #5b7187; font-size: 19px; font-weight: 800; }
+        .movie-row.is-selected .movie-number { background: #d2e9f5; color: #1d6887; }
+        .movie-summary { flex: 1; min-width: 0; }
+        .movie-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 16px; font-weight: 800; }
+        .movie-director { display: block; margin-top: 5px; color: #8695a5; font-size: 12px; }
+        .movie-score { flex: 0 0 auto; color: #e5a536; font-size: 16px; font-weight: 800; white-space: nowrap; }
+        .movie-score small { color: #7b8a9a; font-size: 13px; }
+        .chevron { color: #91a2b1; font-size: 22px; font-weight: 300; }
+        .empty-state { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 260px; padding: 24px; border: 1px dashed #d4dfe8; border-radius: 14px; color: #8090a1; text-align: center; }
+        .empty-state.is-visible { display: flex; }
+        .empty-state strong { margin-bottom: 9px; color: #263c52; }
+        .empty-state p { margin: 0; font-size: 13px; line-height: 1.5; }
+        .detail-panel { display: flex; flex-direction: column; padding: 28px; }
+        .detail-content { display: flex; flex: 1; flex-direction: column; }
+        .detail-topline { display: flex; justify-content: space-between; gap: 12px; }
+        .detail-topline .eyebrow { margin-bottom: 0; }
+        .detail-topline span { color: #a1adba; font-size: 12px; font-weight: 700; }
+        .feature {
+            position: relative; display: flex; flex-direction: column; justify-content: flex-end;
+            min-height: 194px; margin: 24px 0 25px; padding: 27px;
+            overflow: hidden; border-radius: 15px; background: linear-gradient(120deg, #1c3e58, #28687b 65%, #348c95);
+            color: white;
+        }
+        .feature::after { content: "M"; position: absolute; right: 23px; bottom: -65px; color: rgba(255, 255, 255, .08); font-size: 260px; font-weight: 900; line-height: 1; }
+        .feature-kicker { position: relative; z-index: 1; margin-bottom: 15px; color: #c5e6ef; font-size: 11px; font-weight: 800; letter-spacing: .18em; }
+        .feature h2 { position: relative; z-index: 1; margin: 0; font-size: clamp(30px, 3vw, 43px); letter-spacing: -.07em; }
+        .feature-sub { position: relative; z-index: 1; margin: 10px 0 0; color: #d6e9ef; font-size: 13px; }
+        .detail-title-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .detail-title-row h3 { margin: 0 0 9px; font-size: 25px; letter-spacing: -.055em; }
+        .age-badge { display: inline-block; padding: 6px 10px; border: 1px solid #87cbc1; border-radius: 6px; color: #226f6a; background: #eaf8f3; font-size: 11px; font-weight: 800; }
+        .age-badge.is-restricted { border-color: #e5b3b4; color: #af4a50; background: #fff1f1; }
+        .big-score { flex: 0 0 auto; color: #e3a32f; font-size: 27px; font-weight: 850; white-space: nowrap; }
+        .big-score small { color: #96a3af; font-size: 16px; font-weight: 500; }
+        .details { margin: 25px 0 0; }
+        .details div { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 12px; padding: 17px 0; border-bottom: 1px solid #edf1f5; }
+        .details dt { color: #7e8fa1; font-size: 13px; }
+        .details dd { margin: 0; overflow-wrap: anywhere; font-size: 14px; font-weight: 700; }
+        .detail-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: auto; padding-top: 29px; }
+        .secondary-button, .danger-button { min-width: 112px; padding: 11px 18px; border: 1px solid #cfdae4; border-radius: 9px; background: white; color: #274a64; font-size: 13px; font-weight: 800; }
+        .danger-button { border-color: #e7b9bb; color: #be4d55; }
+        .secondary-button:hover { background: #f3f8fb; }
+        .danger-button:hover { background: #fff4f4; }
+        .detail-empty { display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; color: #8b9aaa; }
+        .detail-empty.is-visible { display: flex; }
+        .detail-empty-icon { display: grid; place-items: center; width: 72px; height: 72px; margin-bottom: 20px; border-radius: 20px; background: #e6f1f5; color: #367e95; font-size: 32px; }
+        .detail-empty h2 { margin-bottom: 8px; color: #24394d; font-size: 21px; }
+        .detail-empty p { max-width: 260px; margin: 0; font-size: 14px; line-height: 1.6; }
+        @media (max-width: 1100px) {
+            .app-shell { grid-template-columns: 76px minmax(0, 1fr); }
+            .sidebar { padding: 24px 11px; align-items: center; }
+            .brand { padding: 0 0 34px; }
+            .brand-name, .nav-label, .nav-text, .sidebar-note { display: none; }
+            .nav-item { justify-content: center; padding: 13px; }
+            .workspace { grid-template-columns: minmax(300px, 43%) minmax(0, 1fr); }
+        }
+        @media (max-width: 760px) {
+            .app-shell { display: block; }
+            .sidebar { display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 11px 18px; }
+            .brand { padding: 0; }
+            .brand-name { display: inline; font-size: 15px; }
+            .sidebar nav { display: flex; gap: 6px; }
+            .nav-item { padding: 8px; }
+            .main { padding: 12px; }
+            .workspace { display: flex; flex-direction: column; min-height: 0; gap: 12px; }
+            .list-panel, .detail-panel { padding: 20px; }
+            .detail-panel { min-height: 440px; }
+            .feature { min-height: 150px; padding: 21px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <a class="brand" href="/movies" th:href="@{/movies}" aria-label="영화 목록으로">
+            <span class="brand-mark" aria-hidden="true">▦</span>
+            <span class="brand-name">시네마<br>데스크</span>
+        </a>
+        <nav aria-label="주 메뉴">
+            <p class="nav-label">WORKSPACE</p>
+            <a class="nav-item active" href="/movies" th:href="@{/movies}" aria-current="page">
+                <span class="nav-icon" aria-hidden="true">☷</span><span class="nav-text">영화 목록</span>
+            </a>
+            <button class="nav-item" type="button" aria-label="영화 등록">
+                <span class="nav-icon" aria-hidden="true">＋</span><span class="nav-text">영화 등록</span>
+            </button>
+        </nav>
+        <p class="sidebar-note">영화 정보를 한곳에서<br>편리하게 관리하세요.</p>
+    </aside>
+
+    <main class="main">
+        <div class="workspace">
+            <section class="panel list-panel" aria-labelledby="list-title">
+                <header class="panel-heading">
+                    <div>
+                        <p class="eyebrow">MOVIE ARCHIVE</p>
+                        <h1 id="list-title">영화 목록</h1>
+                        <p class="subtext">영화를 선택해 상세 정보를 확인하세요.</p>
+                    </div>
+                </header>
+
+                <form class="search-form" action="/movies" th:action="@{/movies}" method="get" role="search">
+                    <input type="search" name="q" aria-label="영화 제목 검색" placeholder="영화 제목으로 검색하세요." th:value="${query}">
+                    <button type="submit" aria-label="검색">⌕</button>
+                </form>
+
+                <div class="list-tools">
+                    <p class="count" th:text="'총 ' + (${movies != null ? #lists.size(movies) : 0}) + '편의 영화'">총 5편의 영화</p>
+                    <button class="add-button" type="button">＋ 영화 등록</button>
+                </div>
+
+                <div class="movie-list" aria-label="등록된 영화">
+                    <a class="movie-row is-selected" href="#movie-detail"
+                       th:each="movie, stat : ${movies}"
+                       th:href="@{/movies(selected=${movie.id()})}"
+                       th:class="${selectedMovie != null and movie.id() == selectedMovie.id()} ? 'movie-row is-selected' : 'movie-row'">
+                        <span class="movie-number" th:text="${stat.count < 10 ? '0' + stat.count : stat.count}">01</span>
+                        <span class="movie-summary">
+                            <span class="movie-title" th:text="${movie.title()}">푸른 밤</span>
+                            <span class="movie-director" th:text="'감독  ' + ${movie.director()}">감독 김하늘</span>
+                        </span>
+                        <span class="movie-score">★ <span th:text="${movie.score()}">4.5</span><small> / 5</small></span>
+                        <span class="chevron" aria-hidden="true">›</span>
+                    </a>
+                    <a class="movie-row" href="#movie-detail" th:remove="all">
+                        <span class="movie-number">02</span><span class="movie-summary"><span class="movie-title">별의 길</span><span class="movie-director">감독 이주연</span></span><span class="movie-score">★ 4.2<small> / 5</small></span><span class="chevron" aria-hidden="true">›</span>
+                    </a>
+                    <a class="movie-row" href="#movie-detail" th:remove="all">
+                        <span class="movie-number">03</span><span class="movie-summary"><span class="movie-title">여름의 끝</span><span class="movie-director">감독 김민서</span></span><span class="movie-score">★ 3.8<small> / 5</small></span><span class="chevron" aria-hidden="true">›</span>
+                    </a>
+                    <a class="movie-row" href="#movie-detail" th:remove="all">
+                        <span class="movie-number">04</span><span class="movie-summary"><span class="movie-title">기억의 방</span><span class="movie-director">감독 정다운</span></span><span class="movie-score">★ 4.7<small> / 5</small></span><span class="chevron" aria-hidden="true">›</span>
+                    </a>
+                    <a class="movie-row" href="#movie-detail" th:remove="all">
+                        <span class="movie-number">05</span><span class="movie-summary"><span class="movie-title">도시의 숨</span><span class="movie-director">감독 박민재</span></span><span class="movie-score">★ 4.0<small> / 5</small></span><span class="chevron" aria-hidden="true">›</span>
+                    </a>
+                </div>
+                <div class="empty-state" th:classappend="${movies == null or #lists.isEmpty(movies)} ? ' is-visible' : ''">
+                    <strong>표시할 영화가 없습니다.</strong>
+                    <p>검색어를 바꾸거나 새로운 영화를 등록해 보세요.</p>
+                </div>
+            </section>
+
+            <section class="panel detail-panel" id="movie-detail" aria-label="선택한 영화 상세 정보">
+                <div class="detail-topline"><p class="eyebrow">MOVIE DETAILS</p><span>상세 정보</span></div>
+                <div class="detail-content" th:if="${selectedMovie != null}">
+                    <div class="feature">
+                        <span class="feature-kicker" th:text="|MOVIE ${selectedMovie.id()} · CINEMA DESK|">MOVIE 01 · CINEMA DESK</span>
+                        <h2 th:text="${selectedMovie.title()}">푸른 밤</h2>
+                        <p class="feature-sub">영화 상세 정보</p>
+                    </div>
+                    <div class="detail-title-row">
+                        <div>
+                            <h3 th:text="${selectedMovie.title()}">푸른 밤</h3>
+                            <span class="age-badge"
+                                  th:classappend="${selectedMovie.isAdultOnly()} ? ' is-restricted' : ''"
+                                  th:text="${selectedMovie.isAdultOnly() ? '청소년 관람불가' : '전체 관람가'}">전체 관람가</span>
+                        </div>
+                        <span class="big-score">★ <span th:text="${selectedMovie.score()}">4.5</span><small> / 5</small></span>
+                    </div>
+                    <dl class="details">
+                        <div><dt>감독</dt><dd th:text="${selectedMovie.director()}">김하늘</dd></div>
+                        <div><dt>배급사</dt><dd th:text="${selectedMovie.distributor()}">새벽픽처스</dd></div>
+                        <div><dt>평점</dt><dd><span th:text="${selectedMovie.score()}">4.5</span> / 5.0</dd></div>
+                        <div><dt>관람 등급</dt><dd th:text="${selectedMovie.isAdultOnly() ? '청소년 관람불가' : '전체 관람가'}">전체 관람가</dd></div>
+                    </dl>
+                    <div class="detail-actions">
+                        <button class="secondary-button" type="button">수정</button>
+                        <button class="danger-button" type="button">삭제</button>
+                    </div>
+                </div>
+                <div class="detail-empty" th:classappend="${selectedMovie == null} ? ' is-visible' : ''">
+                    <div class="detail-empty-icon" aria-hidden="true">▤</div>
+                    <h2>선택된 영화가 없습니다.</h2>
+                    <p>왼쪽 목록에서 영화를 선택하면 상세 정보가 여기에 표시됩니다.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+</body>
+</html>
