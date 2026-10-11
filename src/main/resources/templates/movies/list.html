@@ -136,9 +136,9 @@
             <a class="nav-item active" href="/movies" th:href="@{/movies}" aria-current="page">
                 <span class="nav-icon" aria-hidden="true">☷</span><span class="nav-text">영화 목록</span>
             </a>
-            <button class="nav-item" type="button" aria-label="영화 등록">
+            <a class="nav-item" href="/movies/new" th:href="@{/movies/new}" aria-label="영화 등록">
                 <span class="nav-icon" aria-hidden="true">＋</span><span class="nav-text">영화 등록</span>
-            </button>
+            </a>
         </nav>
         <p class="sidebar-note">영화 정보를 한곳에서<br>편리하게 관리하세요.</p>
     </aside>
@@ -161,7 +161,8 @@
 
                 <div class="list-tools">
                     <p class="count" th:text="'총 ' + (${movies != null ? #lists.size(movies) : 0}) + '편의 영화'">총 5편의 영화</p>
-                    <button class="add-button" type="button">＋ 영화 등록</button>
+                    
+                    <a class="add-button" href="/movies/new" th:href="@{/movies/new}">＋ 영화 등록</a>
                 </div>
 
                 <div class="movie-list" aria-label="등록된 영화">
