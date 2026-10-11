@@ -1,13 +1,12 @@
 package org.example.sb_webui_crud.controller;
 
 
+import org.example.sb_webui_crud.dto.MovieRequest;
 import org.example.sb_webui_crud.dto.MovieResponse;
 import org.example.sb_webui_crud.service.MovieService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -36,6 +35,18 @@ public class MovieWebController {
 
         return "movies/list";
     }
+
+    @GetMapping("/new")
+    public String newMovie() {
+        return "movies/form";
+    }
+
+    @PostMapping
+    public String saveMovie(@ModelAttribute MovieRequest movieRequest) {
+        movieService.create(movieRequest);
+        return "redirect:/movies";
+    }
+
 
 
 }
