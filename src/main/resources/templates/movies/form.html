@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>영화 등록 | 시네마 데스크</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+          crossorigin="anonymous">
+    <style>
+        body { background: #f3f5f8; color: #18263b; }
+        .page-wrap { max-width: 780px; }
+        .brand { color: #163650; font-weight: 800; letter-spacing: -.04em; text-decoration: none; }
+        .brand:hover { color: #287c91; }
+        .form-card { border: 1px solid #e8edf3; border-radius: 20px; box-shadow: 0 10px 32px rgba(22, 42, 68, .06); }
+        .eyebrow { color: #47829b; font-size: .75rem; font-weight: 800; letter-spacing: .14em; }
+        .form-label { font-weight: 700; }
+        .form-control:focus, .form-select:focus { border-color: #287c91; box-shadow: 0 0 0 .25rem rgba(40, 124, 145, .15); }
+        .btn-accent { background: #287c91; border-color: #287c91; color: #fff; font-weight: 700; }
+        .btn-accent:hover, .btn-accent:focus { background: #206b7f; border-color: #206b7f; color: #fff; }
+    </style>
+</head>
+<body>
+<main class="container page-wrap py-4 py-md-5">
+    <a class="brand d-inline-block mb-4" href="/movies" th:href="@{/movies}">▦ 시네마 데스크</a>
+
+    <div class="card form-card">
+        <div class="card-body p-4 p-md-5">
+            <p class="eyebrow mb-2">NEW MOVIE</p>
+            <h1 class="h2 fw-bold mb-2">영화 등록</h1>
+            <p class="text-secondary mb-4">영화 정보를 입력한 뒤 등록 버튼을 눌러 주세요.</p>
+
+            <form action="/movies" th:action="@{/movies}" method="post">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <label class="form-label" for="title">영화 제목</label>
+                        <input class="form-control" type="text" id="title" name="title"
+                               placeholder="영화 제목을 입력하세요" required maxlength="200" autofocus>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="director">감독</label>
+                        <input class="form-control" type="text" id="director" name="director"
+                               placeholder="감독 이름" required maxlength="100">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="distributor">배급사</label>
+                        <input class="form-control" type="text" id="distributor" name="distributor"
+                               placeholder="배급사 이름" required maxlength="100">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="score">평점</label>
+                        <input class="form-control" type="number" id="score" name="score"
+                               min="0" max="5" step="0.1" placeholder="0.0 ~ 5.0" required>
+                        <div class="form-text">0점부터 5점까지 입력할 수 있습니다.</div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="isAdultOnly">관람 등급</label>
+                        <select class="form-select" id="isAdultOnly" name="isAdultOnly" required>
+                            <option value="false" selected>전체 관람가</option>
+                            <option value="true">청소년 관람불가</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column flex-sm-row justify-content-end gap-2 mt-5">
+                    <a class="btn btn-outline-secondary px-4" href="/movies" th:href="@{/movies}">목록으로 돌아가기</a>
+                    <button class="btn btn-accent px-4" type="submit">영화 등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>
