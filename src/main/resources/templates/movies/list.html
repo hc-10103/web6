@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>영화 목록 | 시네마 데스크</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+          crossorigin="anonymous">
     <style>
         :root {
             color-scheme: light;
@@ -29,7 +33,7 @@
         .nav-icon { width: 20px; font-size: 19px; text-align: center; font-weight: 500; }
         .sidebar-note { margin-top: auto; padding: 22px 14px 0; border-top: 1px solid #2b4057; color: #95acc2; font-size: 12px; line-height: 1.6; }
         .main { min-width: 0; padding: 26px; }
-        .workspace { display: grid; grid-template-columns: minmax(350px, 42%) minmax(0, 1fr); gap: 20px; max-width: 1540px; min-height: calc(100vh - 52px); margin: 0 auto; }
+        .workspace { display: grid; grid-template-columns: minmax(0, 70%) minmax(0, 1fr); gap: 20px; max-width: 1540px; min-height: calc(100vh - 52px); margin: 0 auto; }
         .panel { min-width: 0; background: #fff; border: 1px solid #e8edf3; border-radius: 21px; box-shadow: 0 10px 32px rgba(22, 42, 68, .045); }
         .list-panel { display: flex; flex-direction: column; padding: 27px 24px; }
         .eyebrow { margin: 0 0 9px; color: #47829b; font-size: 11px; font-weight: 850; letter-spacing: .16em; }
@@ -46,6 +50,12 @@
         .count { margin: 0; color: #6c7c8e; font-size: 13px; font-weight: 700; }
         .add-button, .primary-button { border: 0; border-radius: 9px; padding: 10px 15px; background: #287c91; color: white; font-size: 13px; font-weight: 800; }
         .add-button:hover, .primary-button:hover { background: #206b7f; }
+        .table-wrap { border: 1px solid #edf1f5; border-radius: 12px; }
+        .movie-table { min-width: 700px; margin-bottom: 0; }
+        .movie-table th { color: #60758a; font-size: 12px; white-space: nowrap; }
+        .movie-table td { font-size: 13px; vertical-align: middle; }
+        .movie-link { color: #1d6887; font-weight: 800; text-decoration: none; }
+        .movie-link:hover { color: #14516b; text-decoration: underline; }
         .movie-list { display: grid; gap: 9px; }
         .movie-row {
             display: flex; align-items: center; gap: 13px; min-width: 0;
@@ -107,7 +117,7 @@
             .brand { padding: 0 0 34px; }
             .brand-name, .nav-label, .nav-text, .sidebar-note { display: none; }
             .nav-item { justify-content: center; padding: 13px; }
-            .workspace { grid-template-columns: minmax(300px, 43%) minmax(0, 1fr); }
+            .workspace { grid-template-columns: minmax(0, 68%) minmax(0, 1fr); }
         }
         @media (max-width: 760px) {
             .app-shell { display: block; }
@@ -149,7 +159,7 @@
                 <header class="panel-heading">
                     <div>
                         <p class="eyebrow">MOVIE ARCHIVE</p>
-                        <h1 id="list-title">영화 목록</h1>
+                        <h1 id="list-titㅇle">영화 목록</h1>
                         <p class="subtext">영화를 선택해 상세 정보를 확인하세요.</p>
                     </div>
                 </header>
@@ -162,34 +172,35 @@
                 <div class="list-tools">
                     <p class="count" th:text="'총 ' + (${movies != null ? #lists.size(movies) : 0}) + '편의 영화'">총 5편의 영화</p>
                     
-                    <a class="add-button" href="/movies/new" th:href="@{/movies/new}">＋ 영화 등록</a>
+                    <a class="btn btn-primary add-button" href="/movies/new" th:href="@{/movies/new}">＋ 영화 등록</a>
                 </div>
 
-                <div class="movie-list" aria-label="등록된 영화">
-                    <a class="movie-row is-selected" href="#movie-detail"
-                       th:each="movie, stat : ${movies}"
-                       th:href="@{/movies(selected=${movie.id()})}"
-                       th:class="${selectedMovie != null and movie.id() == selectedMovie.id()} ? 'movie-row is-selected' : 'movie-row'">
-                        <span class="movie-number" th:text="${stat.count < 10 ? '0' + stat.count : stat.count}">01</span>
-                        <span class="movie-summary">
-                            <span class="movie-title" th:text="${movie.title()}">푸른 밤</span>
-                            <span class="movie-director" th:text="'감독  ' + ${movie.director()}">감독 김하늘</span>
-                        </span>
-                        <span class="movie-score">★ <span th:text="${movie.score()}">4.5</span><small> / 5</small></span>
-                        <span class="chevron" aria-hidden="true">›</span>
-                    </a>
-                    <a class="movie-row" href="#movie-detail" th:remove="all">
-                        <span class="movie-number">02</span><span class="movie-summary"><span class="movie-title">별의 길</span><span class="movie-director">감독 이주연</span></span><span class="movie-score">★ 4.2<small> / 5</small></span><span class="chevron" aria-hidden="true">›</span>
-                    </a>
-                    <a class="movie-row" href="#movie-detail" th:remove="all">
-                        <span class="movie-number">03</span><span class="movie-summary"><span class="movie-title">여름의 끝</span><span class="movie-director">감독 김민서</span></span><span class="movie-score">★ 3.8<small> / 5</small></span><span class="chevron" aria-hidden="true">›</span>
-                    </a>
-                    <a class="movie-row" href="#movie-detail" th:remove="all">
-                        <span class="movie-number">04</span><span class="movie-summary"><span class="movie-title">기억의 방</span><span class="movie-director">감독 정다운</span></span><span class="movie-score">★ 4.7<small> / 5</small></span><span class="chevron" aria-hidden="true">›</span>
-                    </a>
-                    <a class="movie-row" href="#movie-detail" th:remove="all">
-                        <span class="movie-number">05</span><span class="movie-summary"><span class="movie-title">도시의 숨</span><span class="movie-director">감독 박민재</span></span><span class="movie-score">★ 4.0<small> / 5</small></span><span class="chevron" aria-hidden="true">›</span>
-                    </a>
+                <div class="table-responsive table-wrap" aria-label="등록된 영화">
+                    <table class="table table-hover align-middle movie-table">
+                        <thead class="table-light">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">제목</th>
+                            <th scope="col">감독</th>
+                            <th scope="col">배급사</th>
+                            <th scope="col">평점</th>
+                            <th scope="col">관람 등급</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="movie : ${movies}"
+                            th:classappend="${selectedMovie != null and movie.id() == selectedMovie.id()} ? 'table-info' : ''">
+                            <td th:text="${movie.id()}">1</td>
+                            <td><a class="movie-link" href="#movie-detail"
+                                   th:href="@{/movies(selected=${movie.id()})}"
+                                   th:text="${movie.title()}">영화 제목</a></td>
+                            <td th:text="${movie.director()}">감독 이름</td>
+                            <td th:text="${movie.distributor()}">배급사 이름</td>
+                            <td th:text="${movie.score()}">4.5</td>
+                            <td th:text="${movie.isAdultOnly() ? '청소년 관람불가' : '전체 관람가'}">전체 관람가</td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div class="empty-state" th:classappend="${movies == null or #lists.isEmpty(movies)} ? ' is-visible' : ''">
                     <strong>표시할 영화가 없습니다.</strong>
