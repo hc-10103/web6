@@ -2,7 +2,7 @@
 
 Spring Boot와 Thymeleaf로 만든 영화 등록·목록 조회 웹 서비스다. 영화의 제목, 감독, 배급사, 평점, 관람 등급을 관리한다. 데이터베이스 대신 `LinkedHashMap<Long, Movie>`에 데이터를 저장하므로 서버를 다시 시작하면 등록한 데이터가 사라진다.
 
-- **Render 배포 URL:** 배포 후 추가 예정
+- **Render 배포 URL:** [https://web6-31ca.onrender.com/movies](https://web6-31ca.onrender.com/movies)
 - **기술:** Java 17, Gradle, Spring Boot, Thymeleaf, Bootstrap 5
 
 ## 실행 방법
